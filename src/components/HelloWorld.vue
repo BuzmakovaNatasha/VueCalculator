@@ -3,25 +3,30 @@
     <h1>{{ msg }}</h1>
     <hr />
     <div class="display">
-      <input v-model.number="operand1" />
-      <input v-model.number="operand2" />
+      <input v-model.number="showOperand1" />
+      <input v-model.number="showOperand2" />
     </div>
     <div class="keyboard">
-      <button @click="result = operand1 + operand2">+</button>
-      <button @click="result = operand1 - operand2">-</button>
-      <button v-if="operand2 != 0" @click="divide(operand1, operand2)">
+      <button @click="result = showOperand1 + showOperand2">+</button>
+      <button @click="result = showOperand1 - showOperand2">-</button>
+      <button v-if="operand2 != 0" @click="divide(showOperand1, showOperand2)">
         /
       </button>
       <button v-else @click="result = 'На 0 делить нельзя'">/</button>
-      <button @click="multiply(operand1, operand2)">*</button>
+      <button @click="multiply(showOperand1, showOperand2)">*</button>
       <button
-        v-if="operand1 == 0 && operand2 < 0"
+        v-if="showOperand1 == 0 && showOperand2 < 0"
         @click="result = '0 в отрицательную степень возводить нельзя'"
       >
         ^
       </button>
-      <button v-else @click="exponentiation(operand1, operand2)">^</button>
-      <button v-if="operand2 != 0" @click="integerDivide(operand1, operand2)">
+      <button v-else @click="exponentiation(showOperand1, showOperand2)">
+        ^
+      </button>
+      <button
+        v-if="showOperand2 != 0"
+        @click="integerDivide(showOperand1, showOperand2)"
+      >
         целочисленное деление
       </button>
       <button v-else @click="result = 'На 0 делить нельзя'">
@@ -29,6 +34,40 @@
       </button>
     </div>
     <div>Результат: {{ result }}</div>
+    <label
+      ><input type="checkbox" v-model="show" />Отобразить экранную
+      клавиатуру</label
+    >
+    <div class="btns__number" v-show="show">
+      <button
+        v-for="number of numbers"
+        :key="number"
+        @click="writeNumber(number)"
+      >
+        {{ number }}
+      </button>
+    </div>
+    <div>
+      <label
+        ><input
+          type="radio"
+          value="operand1"
+          v-model="operand"
+          name="operand"
+        />
+        Операнд 1</label
+      >
+      <label
+        ><input
+          type="radio"
+          value="operand2"
+          v-model="operand"
+          name="operand"
+          checked
+        />
+        Операнд 2</label
+      >
+    </div>
   </div>
 </template>
 
@@ -41,10 +80,21 @@ export default {
   data() {
     return {
       message: "Hello Vue",
-      operand1: 0,
-      operand2: 0,
+      operand1: [],
+      operand2: [],
       result: 0,
+      show: true,
+      operand: "operand1",
+      numbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "удалить"],
     };
+  },
+  computed: {
+    showOperand1() {
+      return +this.operand1.join("");
+    },
+    showOperand2() {
+      return +this.operand2.join("");
+    },
   },
   methods: {
     divide(op1, op2) {
@@ -55,14 +105,29 @@ export default {
     },
     exponentiation(op1, op2) {
       this.result =
-        this.operand1 +
+        this.showOperand1 +
         " в " +
-        this.operand2 +
+        this.showOperand2 +
         " степени = " +
-        Math.pow(op1, op2);
+        +Math.pow(op1, op2);
     },
     integerDivide(op1, op2) {
       this.result = Math.trunc(op1 / op2);
+    },
+    writeNumber(number) {
+      if (this.operand == "operand1") {
+        if (number == "удалить") {
+          this.operand1.pop();
+        } else {
+          this.operand1.push(number);
+        }
+      } else if (this.operand == "operand2") {
+        if (number == "удалить") {
+          this.operand2.pop();
+        } else {
+          this.operand2.push(number);
+        }
+      }
     },
   },
 };
